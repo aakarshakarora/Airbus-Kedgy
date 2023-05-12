@@ -1,10 +1,18 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 
 from common_util import common_method, constant
-from common_util.common_method import status_fab_form, status_sub_assembly, status_assembly
+from common_util.common_method import status_fab_form, status_sub_assembly, status_assembly, fetch_role_by_username
 from data_store.models import SubAssembly, Assembly, Fabrication
+
+
+def login_index(request):
+    logout(request)
+    return render(request, 'login.html')
 
 
 def login_view(request):
@@ -15,11 +23,23 @@ def login_view(request):
         if user is not None:
             login(request, user)
             get_role = common_method.fetch_role_by_username(username)
-            return JsonResponse({'status': True, 'msg': 'Login successful', 'username': username, 'role': get_role})
+            parameter = {'status': True, 'msg': 'Login successful', 'username': username, 'role': get_role}
+            print(parameter)
+            messages.success(request, parameter.get('msg'))
+            return redirect('dashboard')
         else:
-            return JsonResponse({'status': False, 'msg': 'Invalid credentials'}, status=400)
+            messages.error(request, "Wrong credential")
+            return redirect('login')
     else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
+        messages.error(request, "Wrong credential")
+        return redirect('login')
+
+
+def dashboard(request):
+    username = request.user.username  # Assuming the user is authenticated
+    role = fetch_role_by_username(username)
+    return render(request, 'dashboard.html',
+                  {'role': role, 'username': username, 'output': common_method.common_form_data()})
 
 
 def logout_view(request):
@@ -84,11 +104,6 @@ def operator_assembly_form_res(request):
             return JsonResponse({'status': True, 'msg': 'Assembly entry saved'})
         else:
             return JsonResponse({'status': False, 'msg': 'Assembly entry not saved'})
-
-
-@login_required
-def form_content(request):
-    return JsonResponse({'status': True, 'msg': 'Form content sent', 'output': common_method.common_form_data()})
 
 
 @login_required
