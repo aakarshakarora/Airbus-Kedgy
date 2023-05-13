@@ -72,7 +72,7 @@ class Fabrication(models.Model):
     sdate = models.DateField(auto_now_add=True)
     edate = models.DateField(auto_now=True)
     approval_timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    approved_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
+    approved_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, default="",
                                     related_name='fabrication_approvals')
     approval_status = models.CharField(max_length=50, default='Pending')
     worker_name = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
@@ -87,7 +87,7 @@ class SubAssembly(models.Model):
     sdate = models.DateField(auto_now_add=True)
     edate = models.DateField(auto_now=True)
     approval_timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    approved_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
+    approved_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, default="",
                                     related_name='subassembly_approvals')
     approval_status = models.CharField(max_length=50, default='Pending')
     worker_name = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
@@ -101,7 +101,7 @@ class Assembly(models.Model):
     sdate = models.DateField(auto_now_add=True)
     edate = models.DateField(auto_now=True)
     approval_timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    approved_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
+    approved_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, default="",
                                     related_name='assembly_approvals')
     approval_status = models.CharField(max_length=50, default='Pending')
     worker_name = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,

@@ -13,7 +13,7 @@ def common_form_data():
     # Assuming you want to fetch the respective fields for all objects in the models
 
     # Fetching item_name
-    item_name = [choice[1] for choice in Item.ITEM_CHOICES]
+    item_name = list(Item.objects.values_list('item_name', flat=True))
 
     # Fetching machine_name
     machine_name = list(Machine.objects.values_list('machine_name', flat=True))

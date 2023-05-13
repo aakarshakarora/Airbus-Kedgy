@@ -35,6 +35,7 @@ def login_view(request):
 
 
 def dashboard(request):
+    print(request.user.username)
     username = request.user.username  # Assuming the user is authenticated
     role = fetch_role_by_username(username)
     return render(request, 'dashboard.html',
@@ -46,38 +47,42 @@ def logout_view(request):
     return JsonResponse({'status': True, 'msg': 'Logout successful'})
 
 
-@login_required
 def operator_fab_form_res(request):
+    print(request)
     if request.method == 'POST':
-        item = request.POST.get('item')
+        item_name = request.POST.get('item')
         machine = request.POST.get('machine')
         worker_name = request.POST.get('worker_name')
 
-        fab_id = "FAB_" + machine + "_" + common_method.get_datetime_string() + '_' + item
+        try:
+            # Fetch the Item instance based on the item_name
+            item = Item.objects.get(item_name=item_name)
+            machine = Machine.objects.get(machine_name=machine)
+            worker_name = User.objects.get(username=worker_name)
 
-        # Retrieve the corresponding Item and Machine instances
-        item = get_object_or_404(Item, item_name=item)
-        machine = get_object_or_404(Machine, machine_id=machine)
 
-        # Retrieve the User instance for the worker name
-        worker_name = get_object_or_404(User, user_id=worker_name)
+            fab_id = "FAB_" + machine + "_" + common_method.get_datetime_string() + '_' + item.item_id
 
-        status = bool(
-            Fabrication.objects.get_or_create(fabrication_id=fab_id, item=item, machine=machine,
-                                              worker_name=worker_name,
-                                              approved_by=" "))
+            status = bool(
+                Fabrication.objects.get_or_create(fabrication_id=fab_id, item=item, machine=machine,
+                                                  worker_name=worker_name,
+                                                  approved_by=" "))
 
-        if status:
-            response = {'status': True, 'msg': 'Fabrication entry saved'}
-            messages.success(request, response.get('msg'))
-            return redirect('dashboard')
-        else:
-            response = {'status': False, 'msg': 'Fabrication entry not saved'}
+            if status:
+                response = {'status': True, 'msg': 'Fabrication entry saved'}
+                messages.success(request, response.get('msg'))
+                return redirect('dashboard')
+            else:
+                response = {'status': False, 'msg': 'Fabrication entry not saved'}
+                messages.error(request, response.get('msg'))
+                return redirect('login')
+
+        except Item.DoesNotExist:
+            response = {'status': False, 'msg': 'Invalid item selected'}
             messages.error(request, response.get('msg'))
             return redirect('login')
 
 
-@login_required
 def operator_subassembly_form_res(request):
     if request.method == 'POST':
         sub_process = request.POST.get('sub_process')
@@ -101,7 +106,6 @@ def operator_subassembly_form_res(request):
             return redirect('login')
 
 
-@login_required
 def operator_assembly_form_res(request):
     if request.method == 'POST':
         process = request.POST.get('process')
@@ -125,7 +129,6 @@ def operator_assembly_form_res(request):
             return redirect('login')
 
 
-@login_required
 def pending_request_status(request):
     username = request.user.username
     get_role = common_method.fetch_role_by_username(username)
@@ -141,7 +144,6 @@ def pending_request_status(request):
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
-@login_required
 def approved_request_status(request):
     username = request.user.username
     get_role = common_method.fetch_role_by_username(username)
@@ -155,3 +157,5 @@ def approved_request_status(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
