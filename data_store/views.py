@@ -2,12 +2,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
 from common_util import common_method, constant
 from common_util.common_method import status_fab_form, status_sub_assembly, status_assembly, fetch_role_by_username
-from data_store.models import SubAssembly, Assembly, Fabrication
+from data_store.models import SubAssembly, Assembly, Fabrication, Item, Machine, User
 
 
 def login_index(request):
@@ -24,7 +24,6 @@ def login_view(request):
             login(request, user)
             get_role = common_method.fetch_role_by_username(username)
             parameter = {'status': True, 'msg': 'Login successful', 'username': username, 'role': get_role}
-            print(parameter)
             messages.success(request, parameter.get('msg'))
             return redirect('dashboard')
         else:
@@ -56,14 +55,26 @@ def operator_fab_form_res(request):
 
         fab_id = "FAB_" + machine + "_" + common_method.get_datetime_string() + '_' + item
 
+        # Retrieve the corresponding Item and Machine instances
+        item = get_object_or_404(Item, item_name=item)
+        machine = get_object_or_404(Machine, machine_id=machine)
+
+        # Retrieve the User instance for the worker name
+        worker_name = get_object_or_404(User, user_id=worker_name)
+
         status = bool(
-            Fabrication.objects.get_create(fabrication_id=fab_id, item=item, machine=machine, worker_name=worker_name,
-                                           approved_by=" "))
+            Fabrication.objects.get_or_create(fabrication_id=fab_id, item=item, machine=machine,
+                                              worker_name=worker_name,
+                                              approved_by=" "))
 
         if status:
-            return JsonResponse({'status': True, 'msg': 'Fabrication entry saved'})
+            response = {'status': True, 'msg': 'Fabrication entry saved'}
+            messages.success(request, response.get('msg'))
+            return redirect('dashboard')
         else:
-            return JsonResponse({'status': False, 'msg': 'Fabrication entry not saved'})
+            response = {'status': False, 'msg': 'Fabrication entry not saved'}
+            messages.error(request, response.get('msg'))
+            return redirect('login')
 
 
 @login_required
@@ -76,14 +87,18 @@ def operator_subassembly_form_res(request):
         subassembly_id = "SAM" + machine + "_" + common_method.get_datetime_string() + '_' + sub_process
 
         status = bool(
-            SubAssembly.objects.get_create(subassembly_id=subassembly_id, sub_process=sub_process, machine=machine,
-                                           worker_name=worker_name,
-                                           approved_by=" "))
+            SubAssembly.objects.get_or_create(subassembly_id=subassembly_id, sub_process=sub_process, machine=machine,
+                                              worker_name=worker_name,
+                                              approved_by=" "))
 
         if status:
-            return JsonResponse({'status': True, 'msg': 'SubAssembly entry saved'})
+            response = {'status': True, 'msg': 'SubAssembly entry saved'}
+            messages.success(request, response.get('msg'))
+            return redirect('dashboard')
         else:
-            return JsonResponse({'status': False, 'msg': 'SubAssembly entry not saved'})
+            response = {'status': False, 'msg': 'SubAssembly entry not saved'}
+            messages.error(request, response.get('msg'))
+            return redirect('login')
 
 
 @login_required
@@ -96,14 +111,18 @@ def operator_assembly_form_res(request):
         assembly_id = "ASM" + machine + "_" + common_method.get_datetime_string() + '_' + process
 
         status = bool(
-            Assembly.objects.get_create(assembly_id=assembly_id, process=process, machine=machine,
-                                        worker_name=worker_name,
-                                        approved_by=" "))
+            Assembly.objects.get_or_create(assembly_id=assembly_id, process=process, machine=machine,
+                                           worker_name=worker_name,
+                                           approved_by=" "))
 
         if status:
-            return JsonResponse({'status': True, 'msg': 'Assembly entry saved'})
+            response = {'status': True, 'msg': 'Assembly entry saved'}
+            messages.success(request, response.get('msg'))
+            return redirect('dashboard')
         else:
-            return JsonResponse({'status': False, 'msg': 'Assembly entry not saved'})
+            response = {'status': False, 'msg': 'Assembly entry not saved'}
+            messages.error(request, response.get('msg'))
+            return redirect('login')
 
 
 @login_required
