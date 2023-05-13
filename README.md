@@ -2,8 +2,6 @@
 
 # _Team Kedgy_
 
-***
-
 ## Washing Machine Manufacturing Data Management System
 
 This is a data management system designed to streamline the process of manufacturing washing machines. It provides a
