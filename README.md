@@ -40,7 +40,7 @@ The platform is built using the following technologies:
 Clone the project
 
 ```bash
-  git clone https://github.com/aakarshakarora/airbus-kedgy
+  git clone https://github.com/aakarshakarora/Airbus-Kedgy
 ```
 
 Go to the project directory
