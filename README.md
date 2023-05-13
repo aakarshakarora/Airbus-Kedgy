@@ -1,6 +1,4 @@
-<h1 align="center">Airbus Aerothon-5.0 Hackathon Round</h1>
-
-# _Team Kedgy_
+<h1 align="center">Airbus Aerothon-5.0 - Team Kedgy</h1>
 
 ## Washing Machine Manufacturing Data Management System
 
