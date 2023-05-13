@@ -1,8 +1,10 @@
-# Kedgy
+<h1 align="center">Airbus Aerothon-5.0 Hackathon Round</h1>
 
-# Airbus Aerothon-5.0 Hackathon Round
+# _Team Kedgy_
 
-# Washing Machine Manufacturing Data Management System
+***
+
+## Washing Machine Manufacturing Data Management System
 
 This is a data management system designed to streamline the process of manufacturing washing machines. It provides a
 centralized platform for different departments to manage their data related to logistics, supply chain, planning,
